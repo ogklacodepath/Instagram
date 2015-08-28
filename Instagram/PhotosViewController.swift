@@ -32,6 +32,10 @@ class PhotosViewController: UIViewController, UITableViewDataSource, UITableView
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 1
+    }
+    
+    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         if (self.mediaDict != nil) {
             return self.mediaDict!.count
         } else {
@@ -39,6 +43,30 @@ class PhotosViewController: UIViewController, UITableViewDataSource, UITableView
         }
     }
     
+    func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        var headerView = UIView(frame: CGRect(x:0, y:0 , width: 50, height:50))
+        headerView.backgroundColor = UIColor(white:1, alpha:0.9)
+        var profileView = UIImageView(frame: CGRect(x:10, y:10, width: 30, height: 30))
+        profileView.clipsToBounds = true
+        profileView.layer.cornerRadius = 15;
+        profileView.layer.borderColor = UIColor(white: 0.7, alpha: 0.8).CGColor
+        profileView.layer.borderWidth = 1;
+        var url = getImageAtIndex(section)
+        profileView.setImageWithURL(url)
+        headerView.addSubview(profileView)
+        return headerView
+    }
+    
+    func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return CGFloat(30);
+    }
+    
+    func getImageAtIndex(index: Int) -> NSURL{
+        let mediaObj = mediaDict![index] as NSDictionary
+        var imageUrl = mediaObj.valueForKeyPath("images.low_resolution.url") as! String
+        var url = NSURL(string: imageUrl)!
+        return url
+    }
     
     func refreshTable () {
         var url = NSURL(string: "https://api.instagram.com/v1/media/popular?client_id=8f8f7c19b14c4a548330197a139d8ce8")!
@@ -46,7 +74,16 @@ class PhotosViewController: UIViewController, UITableViewDataSource, UITableView
         NSURLConnection.sendAsynchronousRequest(request, queue:  NSOperationQueue.mainQueue(), completionHandler:{ (response: NSURLResponse!, data: NSData!, error: NSError!) -> Void in
             let json = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: nil) as? NSDictionary
             if let json = json {
-                self.mediaDict = json["data"] as? [NSDictionary]
+                if (self.mediaDict == nil) {
+                    self.mediaDict = json["data"] as? [NSDictionary]
+                } else {
+                    var json_data = json["data"] as! [NSDictionary]
+                    for (var i=0; i < json_data.count; i++){
+                        var newIndex = self.mediaDict!.count + 1
+                        var eachMedia = json_data[i] as NSDictionary
+                        self.mediaDict?.append(eachMedia);
+                    }
+                }
                 self.tableView.reloadData();
             }
             self.refreshControl?.endRefreshing()
@@ -54,12 +91,15 @@ class PhotosViewController: UIViewController, UITableViewDataSource, UITableView
     }
     
     
+    
+    
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        println("creating table again");
+        var currentLimit = mediaDict?.count
+        if (indexPath.section == currentLimit! - 1) {
+            refreshTable();
+        }
         var cell = tableView.dequeueReusableCellWithIdentifier("MediaCell", forIndexPath: indexPath) as! PhotoTableCell
-        let mediaObj = mediaDict![indexPath.row] as NSDictionary
-        var imageUrl = mediaObj.valueForKeyPath("images.low_resolution.url") as! String
-        var url = NSURL(string: imageUrl)!
+        var url = getImageAtIndex(indexPath.section)
         cell.instagramImageView.setImageWithURL(url)
         return cell
     }
@@ -76,7 +116,6 @@ class PhotosViewController: UIViewController, UITableViewDataSource, UITableView
     }
     
     func onRefresh() {
-        println("refreshing data");
         refreshTable();
     }
 
