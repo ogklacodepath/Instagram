@@ -19,7 +19,7 @@ class PhotosViewController: UIViewController, UITableViewDataSource, UITableView
             println(json);
         })*/
         
-        refreshTable()
+        refreshTable(true)
         tableView.delegate = self
         tableView.dataSource = self
         tableView.rowHeight = 320;
@@ -68,7 +68,7 @@ class PhotosViewController: UIViewController, UITableViewDataSource, UITableView
         return url
     }
     
-    func refreshTable () {
+    func refreshTable (append : Bool) {
         var url = NSURL(string: "https://api.instagram.com/v1/media/popular?client_id=8f8f7c19b14c4a548330197a139d8ce8")!
         var request = NSURLRequest(URL: url)
         NSURLConnection.sendAsynchronousRequest(request, queue:  NSOperationQueue.mainQueue(), completionHandler:{ (response: NSURLResponse!, data: NSData!, error: NSError!) -> Void in
@@ -77,12 +77,20 @@ class PhotosViewController: UIViewController, UITableViewDataSource, UITableView
                 if (self.mediaDict == nil) {
                     self.mediaDict = json["data"] as? [NSDictionary]
                 } else {
-                    var json_data = json["data"] as! [NSDictionary]
-                    for (var i=0; i < json_data.count; i++){
-                        var newIndex = self.mediaDict!.count + 1
-                        var eachMedia = json_data[i] as NSDictionary
-                        self.mediaDict?.append(eachMedia);
+                    var mergedDict: [NSDictionary]?
+                    var toMergeDict: [NSDictionary]?
+                    if (append) {
+                        mergedDict = self.mediaDict
+                        toMergeDict = json["data"] as? [NSDictionary]
+                    } else {
+                        toMergeDict = self.mediaDict
+                        mergedDict = json["data"] as? [NSDictionary]
                     }
+                    for (var i=0; i < toMergeDict!.count; i++){
+                        var eachMedia = toMergeDict![i] as NSDictionary
+                        mergedDict!.append(eachMedia);
+                    }
+                    self.mediaDict = mergedDict
                 }
                 self.tableView.reloadData();
             }
@@ -96,7 +104,7 @@ class PhotosViewController: UIViewController, UITableViewDataSource, UITableView
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         var currentLimit = mediaDict?.count
         if (indexPath.section == currentLimit! - 1) {
-            refreshTable();
+            refreshTable(true);
         }
         var cell = tableView.dequeueReusableCellWithIdentifier("MediaCell", forIndexPath: indexPath) as! PhotoTableCell
         var url = getImageAtIndex(indexPath.section)
@@ -111,12 +119,12 @@ class PhotosViewController: UIViewController, UITableViewDataSource, UITableView
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         var vc = segue.destinationViewController as! PhotoDetailsViewController
         var indexPath = tableView.indexPathForCell(sender as! UITableViewCell)
-        let mediaObj = mediaDict![indexPath!.row] as NSDictionary
+        let mediaObj = mediaDict![indexPath!.section] as NSDictionary
         vc.imageUrlString = mediaObj.valueForKeyPath("images.standard_resolution.url") as! String
     }
     
     func onRefresh() {
-        refreshTable();
+        refreshTable(false);
     }
 
 }

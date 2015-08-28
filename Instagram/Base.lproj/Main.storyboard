@@ -70,6 +70,7 @@
                                         </tableViewCellContentView>
                                         <connections>
                                             <outlet property="instagramImageView" destination="yWf-iV-PEU" id="brc-aa-IGl"/>
+                                            <segue destination="0lA-1w-JB7" kind="modal" id="liE-aT-oLL"/>
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
@@ -85,6 +86,36 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="fxN-ng-oRV" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1125" y="192"/>
+        </scene>
+        <!--Photo Modal View Controller-->
+        <scene sceneID="acb-5C-KZ2">
+            <objects>
+                <viewController id="0lA-1w-JB7" customClass="PhotoModalViewController" customModule="Instagram" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="3IL-EJ-FKN">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" maximumZoomScale="3" id="LTf-A8-qBT">
+                                <rect key="frame" x="-11" y="-106" width="320" height="568"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <subviews>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="bay-tx-PPa">
+                                        <rect key="frame" x="8" y="28" width="320" height="568"/>
+                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    </imageView>
+                                </subviews>
+                            </scrollView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <connections>
+                        <outlet property="modalImageView" destination="bay-tx-PPa" id="B6P-vC-3b5"/>
+                        <outlet property="scrollView" destination="LTf-A8-qBT" id="Fg1-fj-YHY"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iMA-S7-TKB" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1574" y="256"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="FZK-gk-I4Y">

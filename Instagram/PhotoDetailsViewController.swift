@@ -30,4 +30,9 @@ class PhotoDetailsViewController: UIViewController, UITableViewDataSource, UITab
         cell.instagramImageView.setImageWithURL(url)
         return cell
     }
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        var vc = segue.destinationViewController as! PhotoModalViewController
+        vc.imageUrlString = self.imageUrlString
+    }
 }
